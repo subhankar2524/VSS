@@ -10,21 +10,21 @@ const login = async (req, res) => {
         let user = await User.findOne({ email });
         console.log(user)
         if (!user) {
-            return res.status(404).json({ message: "Here" });
+            return res.status(404).json({ message: "User does not exist" });
         }
 
         // checking if password matches or not ...
         const isMatch = await bcrypt.compare(password, user.password);
         console.log(isMatch); 
         if (!isMatch) {
-            return res.status(404).json({ message: "Or Here" });
+            return res.status(404).json({ message: "Wrong password"});
         }
 
         const payload = {user: {id: user.id}}; 
         const token = jwt.sign(payload, process.env.JWT_SECRET); 
 
         return res.status(200).json({ 
-            message: "Hello User", 
+            message: "User created succesfully", 
             token: token, 
             user: user,
         })
@@ -50,9 +50,7 @@ const signup = async (req, res) => {
         
         // encrypt the password
         const salt = await bcrypt.genSalt(10); 
-        console.log(salt); 
         user.password = await bcrypt.hash(password, salt); 
-        console.log(user.password); 
         // saving the user
         await user.save(); 
         
@@ -62,12 +60,12 @@ const signup = async (req, res) => {
 
         return res.status(200).json({
             message: "Your User", 
-            token: token, 
+            token: token,
             user: user
         })
-    }
+    } 
     catch(e){ 
-        return res.status(400).json({
+        return res.status(404).json({
             message: e.message, 
         })
     }
